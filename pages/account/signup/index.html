@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html id="html" lang="en" class="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- icon -->
+        <link rel="icon" type="image/x-icon" href="../../../site_assets/assets/logo/CitoHubIcon.png">
+        <title id="site-title">Fentr</title>
+        <meta name="description" content="A web app that makes it easy to write code.">
+        <!-- .webmanifest--> 
+        <meta name="theme-color" content="#1a1a1a"/>
+        <link rel="manifest" href="../../../site_assets/manifest/webmanifest.json" />
+        <!-- CSS -->
+        <link rel="stylesheet" href="../../../site_assets/css/root.css" />
+        <link rel="stylesheet" href="../../../site_assets/css/button.css" />
+        <link rel="stylesheet" href="../../../site_assets/css/account.css" />
+        <link rel="stylesheet" href="../../../site_assets/css/animation.css" />
+        <!-- JS -->
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="../../../site_assets/js/post.js"></script>
+        <script src="../../../site_assets/js/cookie.js"></script>
+        <!-- code font for google-->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+        <!-- Font Awesome -->
+        <script src="https://kit.fontawesome.com/9b65a345ec.js" crossorigin="anonymous"></script>
+        <!-- 国旗アイコンcss-->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/4.1.3/css/flag-icons.min.css" rel="stylesheet">
+        <!-- 暗号 -->
+        <script src="../../../site_assets/js/api/crypto.js"></script>
+        <!-- 通知機能 -->
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    </head>
+    <body onload="startSc()" style="background-color: var(--background-2);">
+        <main>
+            <div id="form_div__box">
+                <form id="form" class="signup_form">
+                    <div class="loader_box">
+                        <link rel="stylesheet" href="../../../site_assets/css/loading.css" />
+                        <div class="loader">Loading...</div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </body>
+    <script>
+        var encode1_fun_data
+        var encode2_fun_data
+
+        // encode & decode
+        function encode1(fun_pass_phrase1,fun_data1) {
+            // パスフレーズ（暗号鍵）
+            let passPhrase1 = fun_pass_phrase1
+            // 暗号化したい元のデータ
+            let data1 = fun_data1
+            let utf8_plain = CryptoJS.enc.Utf8.parse(data1);
+            //暗号データが入力されてるか
+            if( data1 == ""){
+                console.log(Error)
+            }else{
+                // 暗号化
+                let encrypted = CryptoJS.AES.encrypt( utf8_plain, passPhrase1 );
+                // 表示
+                encode1_fun_data = encrypted;
+            }
+        }
+        function decode2(fun_pass_phrase2,fun_data2){
+            // パスフレーズ（暗号鍵）
+            let passPhrase2 = fun_pass_phrase2
+            // 暗号済みデータ
+            let encrypted = fun_data2
+            //複合変数にデータがあるか
+            if( encrypted == ""){
+                console.log(Error)
+            }else{
+                // 復号化
+                let decrypted = CryptoJS.AES.decrypt( encrypted , passPhrase2 );
+                let txt_dexrypted = decrypted.toString(CryptoJS.enc.Utf8);
+                // 表示
+                encode2_fun_data = txt_dexrypted;
+            }
+        }
+
+
+
+        let windowUrl = new URL(window.location.href);
+        let params = windowUrl.searchParams;
+
+        if((params.get('swal')) === "true"){
+            swal((params.get('swal_title')),(params.get('swal_text')),(params.get('swal_icon')))
+            .then((value) => {
+                window.open('./', '_self');
+            });
+            if((params.get('swal_title')) === '登録完了'){
+                window.open('../signin/', '_self');
+            }
+        }
+
+        let list_count = 0;
+        let emailList = '';
+        // スプレットシートからデータを取得
+        var jsonDataList = "";
+
+        function getJSON(url_getJSON,mode){
+            getJsonURL = url_getJSON;
+            getJsonUrl(getJsonURL,mode);
+        }
+
+        function getJsonUrl(jsonUrl,mode){
+            if(jsonUrl == ""){
+                document.getElementById("getJsonData").innerHTML = Error
+            }else{
+                fetch(jsonUrl)
+                    .then(result => result.json())
+                    .then((output) => {
+                    const jsonData = JSON.stringify(output);
+                    let obj = jsonData;
+                    Object = obj
+                    var getJsonUrl_obj = obj;
+                    jsonDataList = JSON.parse(getJsonUrl_obj);
+                    //console.log(jsonDataList);
+
+                    list_count = (jsonDataList.length) - 0;
+                    let i = 0;
+                    do {
+                        if(i === 0){
+                            emailList = jsonDataList[i].email;
+                        }else{
+                            emailList = [emailList,jsonDataList[i].email];
+                        }
+                        i += 1;
+                    } while (i < list_count);
+                    document.getElementById('form_div__box').innerHTML = `
+                    <form id="form" class="signup_form fadeIn">
+                        <div style="width: 100%;">
+                            <div style="width: 100%;height: 25px; margin: auto;position: relative;">
+                                <div style="width: 20px;height: 20px; position: absolute;text-align: left;margin: 0 0 0 5px;">
+                                    <a style="color: var(--text-1);left: 0;" href="../../../">
+                                        <i class="fa-regular fa-x" style="font-weight: bold; font-size: 20px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div style="margin: 20px 0 0 0; width: 100%;">
+                                <h1>Fentrをはじめましょう</h1>
+                                <div style="display: flex; flex-direction:column; vertical-align:middle;align-items:center;">
+                                    <input class="input_text" type="text" id="form_name" name="name" placeholder="Name" pattern="^[a-zA-Z0-9]+$" required>
+                                    <input class="input_text" type="email" id="form_email" name="email" placeholder="Email" required>
+                                    <input class="input_text" type="password" id="form_password" name="password" placeholder="Password" minlength="14" maxlength="30" pattern="^[a-zA-Z0-9@]+$" required>
+                                </div>
+                                <div style="margin: 30px 0 5px 0;">
+                                    <div>
+                                        <p>アカウントをお持ちの方は<a href="../signin/" class="link_light_blue_dec_false">ログイン</a>してください。</p>
+                                    </div>
+                                    <div id="form_button_box" style="color: var(--background-6);">
+                                        <button id="form_btn" class="button_light_blue_hover_true" style="min-width: 50%; max-width: 80%; margin: 5px 0;" onclick="form_check()">アカウントを作成</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    `
+                    //console.log(emailList);
+                }).catch(err => console.error(err));
+            };
+        };
+        getJSON(`https://script.google.com/macros/s/AKfycbzILbtdUqEVA76vNP8TrXoeGZxbX_gSOUpMSwBzUcNzSkN1EIxYpZ2zIU04jR52JUDL/exec?mode=0`,'exam_user_status');
+
+        const form = document.getElementById('form');
+        function form_check() {
+            var form_name = document.getElementById('form_name').value;
+            var form_email = document.getElementById('form_email').value;
+            var form_password = document.getElementById('form_password').value;
+            encode1('fentr',form_password);
+            var form_password = encode1_fun_data;
+            let i = 0;
+            let emailCheck = "0";
+            do {
+                if(emailList[i] === form_email){
+                    emailCheck = "1"
+                }
+                i += 1;
+            } while (i < list_count);
+            if(emailCheck === "0"){
+                const isValid = form.checkValidity();
+                if (isValid) {
+                    var post_url = `https://script.google.com/macros/s/AKfycbzILbtdUqEVA76vNP8TrXoeGZxbX_gSOUpMSwBzUcNzSkN1EIxYpZ2zIU04jR52JUDL/exec?mode=accountAddData&email=`+form_email+`&name=`+form_name+`&password=`+form_password;
+                    fetch(post_url, { mode: 'no-cors' });
+                    window.setTimeout(function(){
+                    window.open('./?swal=true&swal_title=登録完了&swal_text=アカウントが作成されました&swal_icon=success', '_self');
+                }, 1);
+                };
+            }else{
+                window.setTimeout(function(){
+                    window.open('./?swal=true&swal_title=Error&swal_text=Emailが既に登録されています&swal_icon=error', '_self');
+                }, 1);
+            };
+        };
+    </script>
+    <!-- Glottologist読み込み -->
+    <script  src="../../../site_assets/js/glottologist.js"></script>
+    <script>
+        const glot = new Glottologist();
+
+        if(navigator.cookieEnabled){
+            const obj = convertCookieToObject(document.cookie);
+            if(obj !== ""){
+                let jsonLang = obj.lang;
+                if(jsonLang = ""){
+                    glot.import("../../../site_assets/json/glot-data.json").then(() => {
+                        glot.render();
+                    });
+                    let rootElement = document.documentElement;
+                    lang =(rootElement.lang);
+                    document.cookie = 'lang=' + lang+'; path=/';
+                }else{
+                    glot.render(jsonLang);
+                }
+            }else{
+                glot.import("../../../site_assets/json/glot-data.json").then(() => {
+                    glot.render();
+                });
+                let rootElement = document.documentElement;
+                lang =(rootElement.lang);
+                document.cookie = 'lang=' + lang+'; path=/';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            const obj = convertCookieToObject(document.cookie);
+            let jsonLang = obj.lang;
+            glot.import("../../../site_assets/json/glot-data.json").then(() => {
+                glot.render(jsonLang);
+                setLangTextForm()
+            });
+            setLangTextForm()
+        });
+
+        const ar = document.getElementById('ar');
+        const zh = document.getElementById('zh');
+        const en = document.getElementById('en');
+        const id = document.getElementById('id');
+        const ja = document.getElementById('ja');
+        const ms = document.getElementById('ms');
+        const es = document.getElementById('es');
+
+
+        function setLangTextForm(){
+            let rootElement = document.documentElement;
+            lang =(rootElement.lang);
+            if(lang === "ar"){
+                document.getElementById("site-title").innerHTML = "Fentr"
+            }else{
+                if(lang === "zh"){
+                    document.getElementById("site-title").innerHTML = "Fentr"
+                }else{
+                    if(lang === "en"){
+                        document.getElementById("site-title").innerHTML = "Fentr"
+                    }else{
+                        if(lang === "id"){
+                            document.getElementById("site-title").innerHTML = "Fentr"
+                        }else{
+                            if(lang === "ja"){
+                                document.getElementById("site-title").innerHTML = "Fentr"
+                            }else{
+                                if(lang === "ms"){
+                                    document.getElementById("site-title").innerHTML = "Fentr"
+                                }else{
+                                    if(lang === "es"){
+                                        document.getElementById("site-title").innerHTML = "Fentr"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function langCiikiesSeve(){
+            if(navigator.cookieEnabled){
+                let rootElement = document.documentElement;
+                lang =(rootElement.lang);
+                console.log(lang)
+                document.cookie = 'lang=' + lang+'; path=/';
+                const obj = convertCookieToObject(document.cookie);
+            }
+            setLangTextForm()
+        };
+
+        const class_mode_light = document.getElementById('class_light')
+        const class_mode_dark = document.getElementById('class_dark')
+
+
+        function class_modeCiikiesSeve(){
+            if(navigator.cookieEnabled){
+                let rootElement = document.documentElement;
+                html_class =(rootElement.className);
+                document.cookie = 'html_class=' + html_class+'; path=/';
+                const obj = convertCookieToObject(document.cookie);
+            }
+            setLangTextForm()
+        }
+
+        function convertCookieToObject(cookies) {
+            const cookieItem = cookies.split(';');
+            const obj = {};
+            cookieItem.forEach((item) => {
+                const element = item.split('=');
+                const key = element[0].trim();
+                const value = decodeURIComponent(element[1]);
+                obj[key] = value;
+            });
+            return obj;
+        }
+    </script>
+</html>
